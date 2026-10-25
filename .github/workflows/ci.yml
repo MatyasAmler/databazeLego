@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: hlidac
+          POSTGRES_USER: hlidac
+          POSTGRES_PASSWORD: hlidac
+        ports:
+          - 5433:5432
+        options: >-
+          --shm-size 1g
+          --health-cmd "pg_isready -U hlidac -d hlidac"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://hlidac:hlidac@localhost:5433/hlidac
+      HLIDAC_FULL: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest -v
