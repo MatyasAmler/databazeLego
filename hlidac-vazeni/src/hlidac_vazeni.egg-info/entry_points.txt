@@ -1,0 +1,2 @@
+[console_scripts]
+hlidac = hlidac.cli:main
